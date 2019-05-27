@@ -16,6 +16,8 @@ public class MyAutoController extends CarController{
 		
 		// Car Speed to move at
 		private final int CAR_MAX_SPEED = 1;
+
+		private HashMap<Coordinate, MapTile> map;
 		
 		public MyAutoController(Car car) {
 			super(car);
@@ -50,6 +52,12 @@ public class MyAutoController extends CarController{
 				}
 			}
 		}
+
+		private boolean survival(Path path, Coordinate position, WorldSpatial.Direction orientation){
+		    float health = getHealth();
+
+		    return true;
+        }
 
 		/**
 		 * Check if you have a wall in front of you!
