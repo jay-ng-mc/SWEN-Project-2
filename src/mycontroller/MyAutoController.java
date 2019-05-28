@@ -6,8 +6,10 @@ import tiles.TrapTile;
 import tiles.WaterTrap;
 import world.Car;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import tiles.MapTile;
 import utilities.Coordinate;
