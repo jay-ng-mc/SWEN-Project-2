@@ -1,7 +1,12 @@
 package mycontroller;
 
 import controller.CarController;
+import tiles.LavaTrap;
+import tiles.TrapTile;
+import tiles.WaterTrap;
 import world.Car;
+
+import java.util.Arrays;
 import java.util.HashMap;
 
 import tiles.MapTile;
@@ -17,7 +22,7 @@ public class MyAutoController extends CarController{
 		// Car Speed to move at
 		private final int CAR_MAX_SPEED = 1;
 
-		private HashMap<Coordinate, MapTile> map;
+		private HashMap<Coordinate, String> map;
 		
 		public MyAutoController(Car car) {
 			super(car);
@@ -53,10 +58,100 @@ public class MyAutoController extends CarController{
 			}
 		}
 
-		private boolean survival(Path path, Coordinate position, WorldSpatial.Direction orientation){
+    /**
+     * Checks if the car can survive a given path (health > 0)
+     * @param path sequence of actions on the car
+     * @param pose position, orientation, and velocity of the car
+     * @return boolean
+     */
+		private boolean survival(Path path, Pose pose){
 		    float health = getHealth();
 
+		    while (path.getLength() > 0){
+		        if (health < 0){
+		            // don't take the path if you will die
+		            return false;
+                }
+
+		        Path.Move move = path.first();
+
+		        updatePose(pose, move);
+		        String nextTileType = this.map.get(pose.position);
+
+		        switch (nextTileType){
+                    case "lava":
+                        health -= LavaTrap.HealthDelta;
+                        break;
+                    case "water":
+                        health += WaterTrap.Yield;
+                        break;
+                    case "ice":
+                        // you can camp the ice tile to get infinite health, you will survive
+                        return true;
+                }
+            }
 		    return true;
+        }
+
+    /**
+     * Given the current pose of car and an action, return the new pose of the car
+     * @param move this is an action given to the car, such as acceleration or turning
+     * @param pose this includes the position, orientation, and velocity of the car
+     * no return, pose is modified
+     */
+        private void updatePose(Pose pose, Path.Move move){
+            int[] displacement = new int[2];
+
+            switch(move){
+                // decide how the move affects vector of car
+                case BRAKE:
+                    pose.velocity = 0;
+                    break;
+                case BACKWARD:
+                    pose.velocity--;
+                    break;
+                case FORWARD:
+                    pose.velocity++;
+                    break;
+                case LEFT:
+                    pose.angle = WorldSpatial.changeDirection(pose.angle, WorldSpatial.RelativeDirection.LEFT);
+                    break;
+                case RIGHT:
+                    pose.angle = WorldSpatial.changeDirection(pose.angle, WorldSpatial.RelativeDirection.RIGHT);
+                    break;
+                case PASS:
+                    // do nothing
+                    break;
+            }
+
+            // decide how vector of car translates current coords to next coords
+            switch(pose.angle){
+                case NORTH:
+                    displacement[1] = 1;
+                    break;
+                case EAST:
+                    displacement[0] = 1;
+                    break;
+                case SOUTH:
+                    displacement[1] = -1;
+                    break;
+                case WEST:
+                    displacement[0] = -1;
+                    break;
+            }
+            displacement[0] *= pose.velocity;
+            displacement[1] *= pose.velocity;
+
+            pose.position.x += displacement[0];
+            pose.position.y += displacement[1];
+        }
+
+        private int[] translate(Path path, Pose pose){
+		    return new int[1];
+        }
+
+        private Path translate(Coordinate[] TilePath){
+		    return new Path();
         }
 
 		/**
