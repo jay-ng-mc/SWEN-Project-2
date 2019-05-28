@@ -291,7 +291,6 @@ public class MyAutoController extends CarController{
 						currentNode = currentNode.getParent();
 					}
 					path.offerFirst(currentNode.getPos());
-					//Path is backwards
 					return path;
 				}
 				
@@ -304,12 +303,6 @@ public class MyAutoController extends CarController{
 						if(movable.getParent() != null) {
 							movable.setParent(currentNode);
 							movable.setValue(calculateDistance(movable.getPos(), finishingPosition));
-						}
-						
-						for(Node node : openList) {
-							if(node.getValue() < currentNode.getValue()) {
-								continue;
-							}
 						}
 						
 						openList.add(movable);
