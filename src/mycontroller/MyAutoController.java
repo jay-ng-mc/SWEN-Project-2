@@ -304,12 +304,6 @@ public class MyAutoController extends CarController{
 							movable.setValue(calculateDistance(movable.getPos(), finishingPosition));
 						}
 						
-						for(Node node : openList) {
-							if(node.getValue() < currentNode.getValue()) {
-								continue;
-							}
-						}
-						
 						openList.add(movable);
 						
 					}
