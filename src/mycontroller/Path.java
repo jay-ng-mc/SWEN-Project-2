@@ -6,22 +6,36 @@ import java.util.LinkedList;
 import java.util.Set;
 
 public class Path {
-    private LinkedList<String> path;
-    private static final String[] OPTIONS_VALUES = new String[]{
-            "brake",
-            "forward",
-            "backward",
-            "left",
-            "right",
-    };
-    private static final Set<String> OPTIONS = new HashSet<String>(Arrays.asList(OPTIONS_VALUES));
+    // Store sequences of actions to be executed by the car
+    // Actions stored as strings
 
-    public LinkedList<String> getPath(){
+    private LinkedList<Move> path;
+    public enum Move {BRAKE, FORWARD, BACKWARD, LEFT, RIGHT, PASS}
+    private int length;
+
+    public LinkedList<Move> getPath(){
         return this.path;
     }
 
-    public void addMove(String move){
-        assert(OPTIONS.contains(move));
+    public void addMove(Move move){
         this.path.add(move);
+        this.length++;
     }
+
+    public void removeMove(Move move){
+        this.path.remove(move);
+        this.length--;
+    }
+
+    public Move pop(){
+        this.length--;
+        return this.path.pop();
+    }
+
+    public Move first(){
+        this.length--;
+        return this.path.removeFirst();
+    }
+
+    public int getLength(){ return this.length; }
 }
