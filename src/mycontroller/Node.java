@@ -4,31 +4,31 @@ import tiles.TrapTile;
 import utilities.Coordinate;
 
 public class Node {
-	Coordinate pos;
-	TrapTile tile;
+	Coordinate position;
+	TrapTile trapTile;
 	double value;
 	Node parent;
 	
-	public Node(Coordinate coordinate ,TrapTile tile) {
-		this.pos = coordinate; 
-		this.tile = tile;
+	public Node(Coordinate coordinate ,TrapTile trapTile) {
+		this.position = coordinate;
+		this.trapTile = trapTile;
 		this.parent = null;
 	}
 	
 	public Coordinate getPos() {
-		return this.pos;
+		return this.position;
 	}
 	
 	public TrapTile getTrapTile() {
-		return this.tile;
+		return this.trapTile;
 	}
 	
-	public void setTrapTile(TrapTile tile) {
-		this.tile = tile;
+	public void setTrapTile(TrapTile trapTile) {
+		this.trapTile = trapTile;
 	}
 	
-	public void setPos(Coordinate pos) {
-		this.pos = pos;
+	public void setPos(Coordinate position) {
+		this.position = position;
 	}
 	
 	public void setValue(double value) {

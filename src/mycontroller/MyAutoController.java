@@ -24,7 +24,9 @@ public class MyAutoController extends CarController{
 		// Car Speed to move at
 		private final int CAR_MAX_SPEED = 1;
 
-		private HashMap<Coordinate, String> map;
+		private HashMap<Coordinate, FullMapTile> map;
+		private int parcelsNeeded;
+		private int parcelsGotten;
 		
 		public MyAutoController(Car car) {
 			super(car);
@@ -78,7 +80,8 @@ public class MyAutoController extends CarController{
 		        Path.Move move = path.first();
 
 		        updatePose(pose, move);
-		        String nextTileType = this.map.get(pose.position);
+		        FullMapTile nextTile = this.map.get(pose.position);
+		        String nextTileType = nextTile.tileType;
 
 		        switch (nextTileType){
                     case "lava":
