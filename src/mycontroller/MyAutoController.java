@@ -88,7 +88,7 @@ public class MyAutoController extends CarController{
                     case "water":
                         health += WaterTrap.Yield;
                         break;
-                    case "ice":
+                    case "health":
                         // you can camp the ice tile to get infinite health, you will survive
                         return true;
                 }
