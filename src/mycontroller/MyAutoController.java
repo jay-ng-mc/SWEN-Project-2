@@ -264,6 +264,8 @@ public class MyAutoController extends CarController{
 			int currentIndex;
 			
 			openList.add(nodeMap.get(startingPosition));
+			currentNode = openList.get(0);
+			currentNode.setValue(calculateDistance(currentNode.getPos(), finishingPosition));
 			
 			while(!openList.isEmpty()) {
 				currentNode =  openList.get(0);
@@ -271,7 +273,7 @@ public class MyAutoController extends CarController{
 				
 				int index = 0;
 				for(Node node : openList) {
-					if(calculateDistance(node.getPos(), finishingPosition) < calculateDistance(currentNode.getPos(), finishingPosition)) {
+					if(node.getValue() < currentNode.getValue()) {
 						currentNode = node;
 						currentIndex = index;
 					}
@@ -283,10 +285,10 @@ public class MyAutoController extends CarController{
 				
 				if(currentNode.getPos() == finishingPosition) {
 					while(currentNode.getParent() != null) {
-						path.add(currentNode.getPos());
+						path.offerFirst(currentNode.getPos());
 						currentNode = currentNode.getParent();
 					}
-					path.add(currentNode.getPos());
+					path.offerFirst(currentNode.getPos());
 					//Path is backwards
 					return path;
 				}
@@ -303,7 +305,7 @@ public class MyAutoController extends CarController{
 						}
 						
 						for(Node node : openList) {
-							if(calculateDistance(node.getPos(), finishingPosition) < calculateDistance(currentNode.getPos(), finishingPosition)) {
+							if(node.getValue() < currentNode.getValue()) {
 								continue;
 							}
 						}
@@ -316,7 +318,7 @@ public class MyAutoController extends CarController{
 			return path;
 		}
 		
-		private ArrayList<Node> getPossibleMoves(Coordinate pos, HashMap<Coordinate, MapTile> map) {
+		private ArrayList<Node> getPossibleMoves(Coordinate pos, HashMap<Coordinate, Node> map) {
 			ArrayList<Node> possiblemoves = new ArrayList<>();
 			Coordinate coordinate;
 			coordinate = new Coordinate((getX(pos) + 1)+","+getY(pos));
@@ -366,4 +368,4 @@ public class MyAutoController extends CarController{
 			int y = Integer.parseInt(splitCoordinate[1]);
 			return y;
 		}
-}
+	}
