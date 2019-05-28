@@ -289,7 +289,6 @@ public class MyAutoController extends CarController{
 						currentNode = currentNode.getParent();
 					}
 					path.offerFirst(currentNode.getPos());
-					//Path is backwards
 					return path;
 				}
 				
