@@ -253,4 +253,117 @@ public class MyAutoController extends CarController{
 			return false;
 		}
 		
-	}
+	public LinkedList<Coordinate> A_Star(Coordinate startingPosition, Coordinate finishingPosition){
+			LinkedList<Coordinate> path = new LinkedList<>();
+			ArrayList<Node> openList = new ArrayList<>();
+			ArrayList<Node> closedList = new ArrayList<>();
+			
+			HashMap<Coordinate, Node> nodeMap = createNodeMap();
+			
+			Node currentNode;
+			int currentIndex;
+			
+			openList.add(nodeMap.get(startingPosition));
+			
+			while(!openList.isEmpty()) {
+				currentNode =  openList.get(0);
+				currentIndex = 0;
+				
+				int index = 0;
+				for(Node node : openList) {
+					if(calculateDistance(node.getPos(), finishingPosition) < calculateDistance(currentNode.getPos(), finishingPosition)) {
+						currentNode = node;
+						currentIndex = index;
+					}
+					index++;
+				}
+				
+				openList.remove(currentIndex);
+				closedList.add(currentNode);
+				
+				if(currentNode.getPos() == finishingPosition) {
+					while(currentNode.getParent() != null) {
+						path.add(currentNode.getPos());
+						currentNode = currentNode.getParent();
+					}
+					path.add(currentNode.getPos());
+					//Path is backwards
+					return path;
+				}
+				
+				if(getPossibleMoves(currentNode.getPos(), nodeMap).size() > 0) {
+					for(Node movable: getPossibleMoves(currentNode.getPos(), nodeMap)) {
+						if(closedList.contains(movable)) {
+							continue;
+						}
+						
+						if(movable.getParent() != null) {
+							movable.setParent(currentNode);
+							movable.setValue(calculateDistance(movable.getPos(), finishingPosition));
+						}
+						
+						for(Node node : openList) {
+							if(calculateDistance(node.getPos(), finishingPosition) < calculateDistance(currentNode.getPos(), finishingPosition)) {
+								continue;
+							}
+						}
+						
+						openList.add(movable);
+						
+					}
+				}
+			}
+			return path;
+		}
+		
+		private ArrayList<Node> getPossibleMoves(Coordinate pos, HashMap<Coordinate, MapTile> map) {
+			ArrayList<Node> possiblemoves = new ArrayList<>();
+			Coordinate coordinate;
+			coordinate = new Coordinate((getX(pos) + 1)+","+getY(pos));
+			if(map.containsKey(coordinate)){
+				possiblemoves.add(map.get(coordinate));
+			}
+			coordinate = new Coordinate((getX(pos) - 1)+","+getY(pos));
+			if(map.containsKey(coordinate)){
+				possiblemoves.add(map.get(coordinate));
+			}
+			coordinate = new Coordinate(getX(pos)+","+(getY(pos) + 1));
+			if(map.containsKey(coordinate)){
+				possiblemoves.add(map.get(coordinate));
+			}
+			coordinate = new Coordinate(getX(pos)+","+(getY(pos) - 1));
+			if(map.containsKey(coordinate)){
+				possiblemoves.add(map.get(coordinate));
+			}
+			return possiblemoves;
+		}
+
+		//Need to implement this
+		private HashMap<Coordinate, Node> createNodeMap() {
+			HashMap<Coordinate, Node> nodeMap = new HashMap<>();
+			return nodeMap;
+		}
+		
+		private double calculateDistance(Coordinate coordinate1, Coordinate coordinate2) {
+			double dist;
+			int x0 = getX(coordinate1);
+			int y0 = getY(coordinate1);
+			
+			int x1 = getX(coordinate2);
+			int y1 = getY(coordinate2);
+			dist = Math.abs((x0 - x1)) + Math.abs((y0 - y1));
+			return dist;
+		}
+		
+		private int getX(Coordinate coordinate) {
+			String[] splitCoordinate = coordinate.toString().split(",");
+			int x = Integer.parseInt(splitCoordinate[0]);
+			return x;
+		}
+		
+		private int getY(Coordinate coordinate) {
+			String[] splitCoordinate = coordinate.toString().split(",");
+			int y = Integer.parseInt(splitCoordinate[1]);
+			return y;
+		}
+}
