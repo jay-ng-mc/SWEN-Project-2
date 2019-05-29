@@ -7,8 +7,14 @@ import utilities.Coordinate;
 import java.util.HashMap;
 
 public abstract class Strategy {
-    abstract Path.Move nextMove(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose);
-    abstract Coordinate setGoal(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose);
+    abstract Path.Move nextMove(HashMap<Coordinate, String> map,
+                                HashMap<Coordinate, MapTile> view,
+                                Pose pose,
+                                boolean enoughParcels);
+    abstract Coordinate setGoal(HashMap<Coordinate, String> map,
+                                HashMap<Coordinate, MapTile> view,
+                                Pose pose,
+                                boolean enoughParcels);
 
 
     /**

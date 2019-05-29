@@ -1,16 +1,20 @@
 package mycontroller;
 
 import tiles.MapTile;
+import tiles.TrapTile;
 import utilities.Coordinate;
 
 import java.util.*;
 
 public class HealthStrategy extends Strategy{
-    public Path.Move nextMove(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose){
+    public Path.Move nextMove(HashMap<Coordinate, String> map,
+                              HashMap<Coordinate, MapTile> view,
+                              Pose pose,
+                              boolean enoughParcels){
         updateMap(map, view);
         Pathfinder pathfinder = new Pathfinder();
 
-        Coordinate goalPosition = setGoal(map, pose);
+        Coordinate goalPosition = setGoal(map, view, pose, enoughParcels);
 
         Layers layers = new Layers();
         for (int i=0; i<4; i++){
@@ -26,9 +30,117 @@ public class HealthStrategy extends Strategy{
         return null;
     }
 
-    public Coordinate setGoal(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose){
+    public Coordinate setGoal(HashMap<Coordinate, String> map,
+                              HashMap<Coordinate, MapTile> view,
+                              Pose pose,
+                              boolean enoughParcels){
         //WORK IN PROGRESS
+        Coordinate[] goal = new Coordinate[1];  // wrapping goal in array to make lambda function work
+        view.forEach((coordinate, mapTile) -> {
+            if (enoughParcels && mapTile.getType() == MapTile.Type.FINISH){
+                // if we have enough parcels, set exit as goal
+                goal[0]= coordinate;
+            }
+            else if (mapTile.getType() == MapTile.Type.TRAP){
+                // if we see a parcel, set it as goal
+                TrapTile trapTile = (TrapTile) mapTile;
+                if (trapTile.getTrap() == "parcel"){
+                    goal[0] = coordinate;
+                }
+            }
 
+            // we have not found an exit or parcel
+            // need to check which side to move to gives us more unknowns to explore
+            Coordinate pos = pose.position;
+            Coordinate[] north = new Coordinate[9];
+            Coordinate[] east = new Coordinate[9];
+            Coordinate[] south = new Coordinate[9];
+            Coordinate[] west = new Coordinate[9];
+
+            for(int i=0; i<9; i++){
+                // populate north east south and west with coordinates of the tiles-
+                // that we will visit if we move in that direction
+                // iterate from west to east, north to south
+                north[i] = new Coordinate(pos.x+i-4, pos.y+5);
+                east[i] = new Coordinate(pos.x+5, pos.y+i-4);
+                south[i] = new Coordinate(pos.x+i-4, pos.y-5);
+                west[i] = new Coordinate(pos.x-5, pos.y+i-4);
+            }
+
+            int northUnknowns = 0, eastUnknowns = 0, southUnknowns = 0, westUnknowns = 0;
+
+            for(int i=0; i<9; i++){
+                if (map.get(north[i]).equalsIgnoreCase("UNKNOWN")) northUnknowns++;
+                if (map.get(east[i]).equalsIgnoreCase("UNKNOWN")) eastUnknowns++;
+                if (map.get(south[i]).equalsIgnoreCase("UNKNOWN")) southUnknowns++;
+                if (map.get(west[i]).equalsIgnoreCase("UNKNOWN")) westUnknowns++;
+            }
+
+            boolean tied = false;
+            // this if tree decides which direction to go towards, then sets the tile 5 units in that direction as goal
+            if(northUnknowns > southUnknowns){
+                if (eastUnknowns > westUnknowns){
+                    if (northUnknowns > eastUnknowns){
+                        goal[0] = new Coordinate(pos.x, pos.y+5);
+                    }
+                    else if (northUnknowns < eastUnknowns){
+                        goal[0] = new Coordinate(pos.x+5, pos.y);
+                    }
+                    else{
+                        tied = true;
+                    }
+                }
+                else{
+                    if (northUnknowns > westUnknowns){
+                        goal[0] = new Coordinate(pos.x, pos.y+5);
+                    }
+                    else if (northUnknowns < westUnknowns){
+                        goal[0] = new Coordinate(pos.x-5, pos.y);
+                    }
+                    else {
+                        tied = true;
+                    }
+                }
+            }
+            else if (northUnknowns > southUnknowns){
+                if (eastUnknowns > westUnknowns){
+                    if (southUnknowns > eastUnknowns){
+                        goal[0] = new Coordinate(pos.x, pos.y-5);
+                    }
+                    else if (southUnknowns < eastUnknowns){
+                        goal[0] = new Coordinate(pos.x+5, pos.y);
+                    }
+                    else {
+                        tied = true;
+                    }
+                }
+                else{
+                    if (southUnknowns > westUnknowns){
+                        goal[0] = new Coordinate(pos.x, pos.y-5);
+                    }
+                    else if (southUnknowns > westUnknowns){
+                        goal[0] = new Coordinate(pos.x-5, pos.y);
+                    }
+                    else{
+                        tied = true;
+                    }
+                }
+            }
+            else{
+                tied = true;
+            }
+
+            if (tied){
+                goal[0] = getNearestUnknown();
+            }
+
+        });
+
+        return goal[0];
+    }
+
+
+    private Coordinate getNearestUnknown(){
         return null;
     }
 }
