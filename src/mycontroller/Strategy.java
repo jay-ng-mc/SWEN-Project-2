@@ -7,12 +7,7 @@ import utilities.Coordinate;
 import java.util.HashMap;
 
 public abstract class Strategy {
-    Path.Move nextMove(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose) {
-        updateMap(map, view);
-
-        //WORK IN PROGRESS
-        return null;
-    }
+    abstract Path.Move nextMove(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose);
 
     /**
      * Update the full map with what is observed by the car's 9x9 view
@@ -43,7 +38,8 @@ public abstract class Strategy {
                             map.put(coordinate, "map");
                             break;
                         case EMPTY:
-                            map.put(coordinate, "empty");
+                            // not in map, don't add
+                            // map.put(coordinate, "empty");
                             break;
                         case UTILITY:
                             map.put(coordinate, "utility");
