@@ -8,13 +8,15 @@ import java.util.HashMap;
 
 public abstract class Strategy {
     abstract Path.Move nextMove(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose);
+    abstract Coordinate setGoal(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose);
+
 
     /**
      * Update the full map with what is observed by the car's 9x9 view
      * @param map full map where tile types are stored as string
      * @param view 9x9 grid around the car
      */
-    private void updateMap(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view) {
+    void updateMap(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view) {
         view.forEach((coordinate, mapTile) -> {
             switch (mapTile.getType()) {
                 case TRAP:
