@@ -7,19 +7,22 @@ import utilities.Coordinate;
 import java.util.HashMap;
 
 public abstract class Strategy {
-    Path.Move nextMove(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view, Pose pose) {
-        updateMap(map, view);
+    abstract Path.Move nextMove(HashMap<Coordinate, String> map,
+                                HashMap<Coordinate, MapTile> view,
+                                Pose pose,
+                                boolean enoughParcels);
+    abstract Coordinate setGoal(HashMap<Coordinate, String> map,
+                                HashMap<Coordinate, MapTile> view,
+                                Pose pose,
+                                boolean enoughParcels);
 
-        //WORK IN PROGRESS
-        return null;
-    }
 
     /**
      * Update the full map with what is observed by the car's 9x9 view
      * @param map full map where tile types are stored as string
      * @param view 9x9 grid around the car
      */
-    private void updateMap(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view) {
+    void updateMap(HashMap<Coordinate, String> map, HashMap<Coordinate, MapTile> view) {
         view.forEach((coordinate, mapTile) -> {
             switch (mapTile.getType()) {
                 case TRAP:
@@ -43,7 +46,8 @@ public abstract class Strategy {
                             map.put(coordinate, "map");
                             break;
                         case EMPTY:
-                            map.put(coordinate, "empty");
+                            // not in map, don't add
+                            // map.put(coordinate, "empty");
                             break;
                         case UTILITY:
                             map.put(coordinate, "utility");
