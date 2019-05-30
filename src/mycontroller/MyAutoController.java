@@ -44,13 +44,18 @@ public class MyAutoController extends CarController{
 			}else {
 				//Need to implement finishingPosition
 				Coordinate move = pathfind.A_Star(getPosition(), finishingPosition, map);
-				Direction finalDirection = checkDirections(move);
-				if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.LEFT) == finalDirection) {
-					turnLeft();
-				}else if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.RIGHT) == finalDirection) {
-					turnRight();
-				}else if(WorldSpatial.reverseDirection(getOrientation()) == finalDirection) {
-					applyReverseAcceleration();
+				// If there is a move
+				if(!move.equals(null)) {
+					Direction finalDirection = checkDirections(move);
+					if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.LEFT) == finalDirection) {
+						turnLeft();
+					}else if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.RIGHT) == finalDirection) {
+						turnRight();
+					}else if(WorldSpatial.reverseDirection(getOrientation()) == finalDirection) {
+						applyReverseAcceleration();
+					}
+				}else { //Not enough hp to arrive to destination implement hp restoring tactics or destination is impossible to reach
+					
 				}
 			}
 		}
