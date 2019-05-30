@@ -111,7 +111,7 @@ public class Pathfinder {
 	private HashMap<Coordinate, Node> createNodeMap(HashMap<Coordinate, String> hmap) {
 		HashMap<Coordinate, Node> nodeMap = new HashMap<>();
 		for(HashMap.Entry<Coordinate, String> entry: hmap.entrySet()) {
-			if(entry.getValue() != "WALL") {
+			if(entry.getValue() != "WALL" || entry.getValue() != "UNKOWN") {
 				nodeMap.put(entry.getKey(), new Node(entry.getKey(), tileFactory.getTrapTile(entry.getValue())));
 			}
 		}
