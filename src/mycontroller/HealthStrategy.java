@@ -20,7 +20,7 @@ public class HealthStrategy extends Strategy{
         for (int i=0; i<4; i++){
             // progressively go to less restricted legal tiles
             ArrayList<String> allowedTiles = layers.getLayer(i);
-            LinkedList<Coordinate> coordPath = pathfinder.A_Star(pose.position, goalPosition);
+            LinkedList<Coordinate> coordPath = pathfinder.A_Star(pose.position, goalPosition, map);
 
             // if car can find a path to goal, return the first step in this path
             if (!coordPath.isEmpty()) return path.first();
@@ -131,7 +131,7 @@ public class HealthStrategy extends Strategy{
             }
 
             if (tied){
-                goal[0] = getNearestUnknown();
+                goal[0] = getNearestUnknown(map, pose);
             }
 
         });
@@ -140,8 +140,17 @@ public class HealthStrategy extends Strategy{
     }
 
 
-    private Coordinate getNearestUnknown(){
-        return null;
+    private Coordinate getNearestUnknown(HashMap<Coordinate, String> map, Pose pose){
+    	Coordinate nearest = null;
+    	int closestdist = 9999999;
+    	for (Coordinate coord : map.keySet()) {
+    		int distanceTo = Math.abs(coord.x-pose.position.x) + Math.abs(coord.y-pose.position.y);
+    		if (map.get(coord).equalsIgnoreCase("UNKNOWN") && distanceTo < closestdist) {
+    			nearest = coord;
+    			closestdist = distanceTo;
+    		}
+    	}
+        return nearest;
     }
 }
 
