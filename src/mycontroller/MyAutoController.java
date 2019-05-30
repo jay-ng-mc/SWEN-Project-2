@@ -12,6 +12,7 @@ import java.util.HashMap;
 
 import tiles.MapTile;
 import utilities.Coordinate;
+import world.WorldSpatial;
 import world.WorldSpatial.*;
 
 public class MyAutoController extends CarController{		
@@ -38,40 +39,19 @@ public class MyAutoController extends CarController{
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
 			// checkStateChange();
-			//Need to change this
 			if(getSpeed() < CAR_MAX_SPEED){       // Need speed to turn and progress toward the exit
 				applyForwardAcceleration();   // Tough luck if there's a wall in the way
 			}else {
 				//Need to implement finishingPosition
 				Coordinate move = pathfind.A_Star(getPosition(), finishingPosition, map);
 				Direction finalDirection = checkDirections(move);
-				changeDirection(getOrientation(), finalDirection);
-			}
-		}
-
-		public float orientationConvert(Direction targetDirection) {
-			float currentAngle;
-			if(targetDirection == Direction.NORTH) {
-				currentAngle = WorldSpatial.NORTH_DEGREE;
-			}else if(targetDirection == Direction.EAST) {
-				currentAngle = WorldSpatial.EAST_DEGREE_MIN;
-			}else if(targetDirection == Direction.SOUTH) {
-				currentAngle = WorldSpatial.SOUTH_DEGREE;
-			}else{
-				currentAngle = WorldSpatial.WEST_DEGREE;
-			}
-			return currentAngle;
-		}
-		
-		public void changeDirection(Direction currentDirection, Direction targetDirection) {
-			float currentAngle = orientationConvert(currentDirection);
-			float finalAngle = orientationConvert(targetDirection);
-			if((finalAngle - currentAngle) <= 90 && (finalAngle - currentAngle) > 0) {
-				turnLeft();
-			}else if((finalAngle - currentAngle) < 0 && (finalAngle - currentAngle) >= -90) {
-				turnRight();
-			}else if(Math.abs(finalAngle - currentAngle) == 180) {
-				applyReverseAcceleration();
+				if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.LEFT) == finalDirection) {
+					turnLeft();
+				}else if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.RIGHT) == finalDirection) {
+					turnRight();
+				}else if(WorldSpatial.reverseDirection(getOrientation()) == finalDirection) {
+					applyReverseAcceleration();
+				}
 			}
 		}
 		
@@ -114,7 +94,7 @@ public class MyAutoController extends CarController{
 		}
 		
 		public boolean checkNorth(Coordinate coordinate){
-			// Check tiles to towards the top
+			// Check tiles to towards the top	
 			Coordinate currentPosition = new Coordinate(getPosition());
 			if(new Coordinate(currentPosition.x, currentPosition.y+1).equals(coordinate)){
 				return true;
