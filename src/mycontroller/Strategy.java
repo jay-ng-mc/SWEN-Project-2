@@ -4,15 +4,13 @@ import tiles.MapTile;
 import tiles.TrapTile;
 import utilities.Coordinate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public abstract class Strategy {
-    abstract Path.Move nextMove(HashMap<Coordinate, String> map,
+    abstract Coordinate nextMove(HashMap<Coordinate, String> map,
                                 HashMap<Coordinate, MapTile> view,
                                 Pose pose,
-                                boolean enoughParcels);
+                                boolean enoughParcels, int health);
     abstract Coordinate setGoal(HashMap<Coordinate, String> map,
                                 HashMap<Coordinate, MapTile> view,
                                 Pose pose,
@@ -45,7 +43,7 @@ public abstract class Strategy {
                             map.put(coordinate, "road");
                             break;
                         case WALL:
-                            map.put(coordinate, "map");
+                            map.put(coordinate, "wall");
                             break;
                         case EMPTY:
                             // not in map, don't add

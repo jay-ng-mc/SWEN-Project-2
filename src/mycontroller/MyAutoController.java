@@ -22,31 +22,72 @@ public class MyAutoController extends CarController{
 		// Car Speed to move at
 		private final int CAR_MAX_SPEED = 1;
 
-		private HashMap<Coordinate, String> map;
+		private HashMap<Coordinate, String> map = new HashMap<Coordinate, String>();
 		private int parcelsNeeded;
 		private int parcelsGotten;
 		private Pathfinder pathfind = new Pathfinder();
+		private HealthStrategy strat = new HealthStrategy();
+		private boolean firstCall = true;
+		
+		
 		
 		public MyAutoController(Car car) {
 			super(car);
+			for (Coordinate coord : getMap().keySet()) {
+				if (getMap().get(coord).getType().toString().equals("WALL")) {
+					map.put(coord, "WALL");
+				}
+				else {
+					map.put(coord, "UNKNOWN");
+				}
+			}
+
 		}
 		
+		private Pose pose = new Pose();
 		// Coordinate initialGuess;
 		// boolean notSouth = true;
 		@Override
 		public void update() {
+			/*for (Coordinate coord : map.keySet()) {
+				System.out.println(map.get(coord).toString());
+			}*/
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
-			
+			pose.position = new Coordinate(getPosition());
+			pose.angle = getOrientation();
+			pose.velocity = getVelocity();
+			strat.updateMap(map, getView());
+			//System.out.println("Position = " + pose.position);
 			// checkStateChange();
-			if(getSpeed() < CAR_MAX_SPEED){       // Need speed to turn and progress toward the exit
-				applyForwardAcceleration();   // Tough luck if there's a wall in the way
+			if(getSpeed() < CAR_MAX_SPEED){ // Need speed to turn and progress toward the exit
+				Direction dir = getOrientation();
+				Coordinate currentPosition = new Coordinate(getPosition());
+				if(getView().get(new Coordinate(currentPosition.x + 1, currentPosition.y)).getType().toString().equalsIgnoreCase("WALL")) {
+					applyReverseAcceleration();
+				}
+				else {
+					applyForwardAcceleration();
+				}
+				
+				// Tough luck if there's a wall in the way
 			}else {
 				//Need to implement finishingPosition
-				Coordinate move = pathfind.A_Star(getPosition(), finishingPosition, map);
-				// If there is a move
-				if(!move.equals(null)) {
+				boolean enoughParcels = false;
+				if (numParcelsFound() >= numParcels()) {
+					enoughParcels = true;
+				}
+	            for (Coordinate coords : map.keySet()) {
+	            	//System.out.println(coords.toString());
+	            }
+				Coordinate finishingPosition = strat.setGoal(map, getView(), pose, enoughParcels);
+				System.out.println("Want to go to: " + finishingPosition.toString());
+				Coordinate move = pathfind.A_Star(new Coordinate(getPosition()), finishingPosition, map, (int)getHealth());
+				System.out.println("Going to: " + move + " from " + getPosition());
+				if(move != null) {
+					//System.out.println("Moving to: " + move.toString());
 					Direction finalDirection = checkDirections(move);
+					System.out.println(finalDirection);
 					if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.LEFT) == finalDirection) {
 						turnLeft();
 					}else if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.RIGHT) == finalDirection) {
@@ -54,7 +95,8 @@ public class MyAutoController extends CarController{
 					}else if(WorldSpatial.reverseDirection(getOrientation()) == finalDirection) {
 						applyReverseAcceleration();
 					}
-				}else { //Not enough hp to arrive to destination implement hp restoring tactics or destination is impossible to reach
+				}
+				else {
 					
 				}
 			}
@@ -101,6 +143,8 @@ public class MyAutoController extends CarController{
 		public boolean checkNorth(Coordinate coordinate){
 			// Check tiles to towards the top	
 			Coordinate currentPosition = new Coordinate(getPosition());
+			Coordinate toCheck = new Coordinate(currentPosition.x, currentPosition.y + 1);
+			System.out.println("Comparing: " + toCheck.toString() + "to " + coordinate.toString());
 			if(new Coordinate(currentPosition.x, currentPosition.y+1).equals(coordinate)){
 				return true;
 			}

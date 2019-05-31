@@ -16,13 +16,12 @@ public class Pathfinder {
 	final static int[] MaxPixel = {(World.MAP_WIDTH/World.MAP_PIXEL_SIZE), (World.MAP_HEIGHT/World.MAP_PIXEL_SIZE)};
 	double maxDistance = calculateDistance(Origin,MaxPixel);
 	
-	public Coordinate A_Star(Coordinate startingPosition, Coordinate finishingPosition, HashMap<Coordinate, String> hmap){
+	public Coordinate A_Star(Coordinate startingPosition, Coordinate finishingPosition, HashMap<Coordinate, String> hmap, int health){
 		LinkedList<Coordinate> path = new LinkedList<>();
 		ArrayList<Node> openList = new ArrayList<>();
 		ArrayList<Node> closedList = new ArrayList<>();
-		
+		//System.out.println("Making New Node Map");
 		HashMap<Coordinate, Node> nodeMap = createNodeMap(hmap);
-		
 		
 		Node currentNode;
 		int currentIndex;
@@ -30,10 +29,16 @@ public class Pathfinder {
 		openList.add(nodeMap.get(startingPosition));
 		currentNode = openList.get(0);
 		currentNode.setValue(calculateHeuristic(currentNode.getPos(), finishingPosition, nodeMap));
-		
+		currentNode.setHP(health);
+		if (finishingPosition == null) {
+			return null;
+		}
 		while(!openList.isEmpty()) {
+			//System.out.println("Looped");
 			currentNode =  openList.get(0);
 			currentIndex = 0;
+			
+			//System.out.println("currentNode = " + currentNode.getPos());
 			
 			int index = 0;
 			for(Node node : openList) {
@@ -44,35 +49,50 @@ public class Pathfinder {
 				index++;
 			}
 			
+			//System.out.println("currentNode1 = " + currentNode.getPos());
+			
 			openList.remove(currentIndex);
 			closedList.add(currentNode);
 			
-			if(currentNode.getPos() == finishingPosition) {
+			if(currentNode.getPos().equals(finishingPosition)) {
+				//System.out.println(currentNode.getParent());
 				while(currentNode.getParent() != null) {
 					path.offerFirst(currentNode.getPos());
+					//System.out.println(path.toString());
+					//System.out.println("Entered Loop");
 					currentNode = currentNode.getParent();
 				}
-				return path.get(0);
+				System.out.println("Next coord is: " + path.toString());
+				if(path.isEmpty()) {
+					return null;
+				}else {
+					return path.getFirst();
+				}
 			}
-			
+			//System.out.println((getPossibleMoves(currentNode.getPos(), nodeMap)).toString());
+			//System.out.println("Got here");
 			if(getPossibleMoves(currentNode.getPos(), nodeMap).size() > 0) {
+				//System.out.println("Entered IF statement");
 				for(Node movable: getPossibleMoves(currentNode.getPos(), nodeMap)) {
+					//System.out.println(movable.getPos());
+					//System.out.println("Entered For Loop");
+					//System.out.println(movable.getHP());					
+					//System.out.println("Entered Health loop");
+					if(closedList.contains(movable)) {
+						continue;
+					}
+					
+					if(movable.getParent() == null) {
+						movable.setParent(currentNode);
+						//System.out.println("Set Parent");
+						movable.setValue(calculateHeuristic(movable.getPos(), finishingPosition, nodeMap));
+					}
+					if(openList.contains(movable)) {
+						continue;
+					}
+					//System.out.println(movable.getHP());
 					if(movable.getHP() > 0) {
-						if(closedList.contains(movable)) {
-							continue;
-						}
-					
-						if(movable.getParent() != null) {
-							movable.setParent(currentNode);
-							movable.setValue(calculateHeuristic(movable.getPos(), finishingPosition, nodeMap));
-						}
-					
-						for(Node node : openList) {
-							if(node.getValue() < currentNode.getValue()) {
-								continue;
-							}
-						}
-					
+						//System.out.println("adding: " + movable.getPos());
 						openList.add(movable);
 					}else {
 						closedList.add(movable);
@@ -80,6 +100,7 @@ public class Pathfinder {
 				}
 			}
 		}
+		System.out.println("Nothing :P");
 		return null;
 	}
 
@@ -110,8 +131,11 @@ public class Pathfinder {
 	private HashMap<Coordinate, Node> createNodeMap(HashMap<Coordinate, String> hmap) {
 		HashMap<Coordinate, Node> nodeMap = new HashMap<>();
 		for(HashMap.Entry<Coordinate, String> entry: hmap.entrySet()) {
-			if(entry.getValue() != "WALL" || entry.getValue() != "UNKOWN") {
+			//System.out.println(entry.getValue());
+			if(!(entry.getValue().equalsIgnoreCase("WALL"))) {
 				nodeMap.put(entry.getKey(), new Node(entry.getKey(), tileFactory.getTrapTile(entry.getValue())));
+				//System.out.println(entry.getKey());
+				
 			}
 		}
 		return nodeMap;
