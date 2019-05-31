@@ -4,6 +4,8 @@ import tiles.MapTile;
 import tiles.TrapTile;
 import utilities.Coordinate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public abstract class Strategy {

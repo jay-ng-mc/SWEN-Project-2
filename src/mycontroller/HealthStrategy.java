@@ -102,7 +102,7 @@ public class HealthStrategy extends Strategy{
                     }
                 }
             }
-            else if (northUnknowns > southUnknowns){
+            else if (northUnknowns < southUnknowns){
                 if (eastUnknowns > westUnknowns){
                     if (southUnknowns > eastUnknowns){
                         goal[0] = new Coordinate(pos.x, pos.y-5);
@@ -118,7 +118,7 @@ public class HealthStrategy extends Strategy{
                     if (southUnknowns > westUnknowns){
                         goal[0] = new Coordinate(pos.x, pos.y-5);
                     }
-                    else if (southUnknowns > westUnknowns){
+                    else if (southUnknowns < westUnknowns){
                         goal[0] = new Coordinate(pos.x-5, pos.y);
                     }
                     else{
@@ -158,26 +158,33 @@ public class HealthStrategy extends Strategy{
  * Lists the tile types that the car is allowed to pass through
  * Each layer contains progressively less stringent constraints
  */
-class Layers{
-    private ArrayList<String> avoidAll =
-            new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "PARCEL"));
-    private ArrayList<String> allowUnknowns =
-            new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "PARCEL", "UNKNOWN"));
-    private ArrayList<String> allowLava =
-            new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "PARCEL", "UNKNOWN", "LAVA"));
-    private ArrayList<String> allowHealth =
-            new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "UNKNOWN", "LAVA", "HEALTH", "WATER"));
+class HealthLayers{
+    private ArrayList<String> avoidAll;
+    private ArrayList<String> allowUnknowns;
+    private ArrayList<String> allowLava;
+    private ArrayList<String> allowHealth;
+
+    HealthLayers(){
+        this.avoidAll =
+                new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "PARCEL"));
+        this.allowUnknowns =
+                new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "PARCEL", "UNKNOWN"));
+        this.allowLava =
+                new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "PARCEL", "UNKNOWN", "LAVA"));
+        this.allowHealth =
+                new ArrayList<>(Arrays.asList("START", "FINISH", "ROAD", "UNKNOWN", "LAVA", "HEALTH", "WATER"));
+    }
 
     ArrayList<String> getLayer(int index){
         switch(index){
             case 0:
-                return avoidAll;
+                return this.avoidAll;
             case 1:
-                return allowUnknowns;
+                return this.allowUnknowns;
             case 2:
-                return allowLava;
+                return this.allowLava;
             case 3:
-                return allowHealth;
+                return this.allowHealth;
         }
 
         // we should not ever get here, if we get here it means there is an index error
