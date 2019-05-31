@@ -63,7 +63,7 @@ public class MyAutoController extends CarController{
 			if(getSpeed() < CAR_MAX_SPEED){ // Need speed to turn and progress toward the exit
 				Direction dir = getOrientation();
 				Coordinate currentPosition = new Coordinate(getPosition());
-				if(getView().get(new Coordinate(currentPosition.x + 1, currentPosition.y)).getType().toString().equalsIgnoreCase("WALL")) {
+				if(facingWall()) {
 					applyReverseAcceleration();
 				}
 				else {
@@ -160,4 +160,30 @@ public class MyAutoController extends CarController{
 			return false;
 		}
 		
+		public boolean facingWall() {
+			Coordinate currentPosition = new Coordinate(getPosition());
+			boolean facing = false;
+			if (getOrientation() == Direction.NORTH) {
+				if(map.get(new Coordinate(currentPosition.x, currentPosition.y + 1)).equalsIgnoreCase("WALL")){
+					facing = true;
+				}
+			}
+			else if (getOrientation() == Direction.SOUTH) {
+				if(map.get(new Coordinate(currentPosition.x, currentPosition.y - 1)).equalsIgnoreCase("WALL")){
+					facing = true;
+				}
+			}
+			else if (getOrientation() == Direction.EAST) {
+				if(map.get(new Coordinate(currentPosition.x + 1, currentPosition.y)).equalsIgnoreCase("WALL")){
+					facing = true;
+				}
+			}
+			else if (getOrientation() == Direction.WEST) {
+				if(map.get(new Coordinate(currentPosition.x - 1, currentPosition.y)).equalsIgnoreCase("WALL")){
+					facing = true;
+				}
+			}
+			
+			return facing;
+		}
 }

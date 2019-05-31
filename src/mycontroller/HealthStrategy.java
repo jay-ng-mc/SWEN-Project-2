@@ -41,9 +41,16 @@ public class HealthStrategy extends Strategy{
                               Pose pose,
                               boolean enoughParcels){
         //WORK IN PROGRESS
-    	
         Coordinate[] goal = new Coordinate[1];  // wrapping goal in array to make lambda function work
         for (Coordinate coordinate : view.keySet()) {
+        	if (enoughParcels) {
+        		for (Coordinate coord : map.keySet()) {
+        			if (map.get(coord).equalsIgnoreCase("finish")){
+        				goal[0]= coord;
+                        return goal[0];
+        			}
+        		}
+        	}
             if (enoughParcels &&  view.get(coordinate).getType() == MapTile.Type.FINISH){
                 // if we have enough parcels, set exit as goal
                 goal[0]= coordinate;
