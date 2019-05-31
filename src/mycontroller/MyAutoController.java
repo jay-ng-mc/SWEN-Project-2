@@ -9,6 +9,7 @@ import world.Car;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import tiles.MapTile;
 import utilities.Coordinate;
@@ -80,13 +81,13 @@ public class MyAutoController extends CarController{
 	            for (Coordinate coords : map.keySet()) {
 	            	//System.out.println(coords.toString());
 	            }
-				Coordinate finishingPosition = strat.setGoal(map, getView(), pose, enoughParcels);
+				Coordinate finishingPosition = strat.setGoal(map, getView(), pose, enoughParcels, (int)getHealth());
 				System.out.println("Want to go to: " + finishingPosition.toString());
-				Coordinate move = pathfind.A_Star(new Coordinate(getPosition()), finishingPosition, map, (int)getHealth());
+				LinkedList<Node> move = pathfind.A_Star(new Coordinate(getPosition()), finishingPosition, map, (int)getHealth());
 				System.out.println("Going to: " + move + " from " + getPosition());
 				if(move != null) {
 					//System.out.println("Moving to: " + move.toString());
-					Direction finalDirection = checkDirections(move);
+					Direction finalDirection = checkDirections(move.getFirst().getPos());
 					System.out.println(finalDirection);
 					if(WorldSpatial.changeDirection(getOrientation(), RelativeDirection.LEFT) == finalDirection) {
 						turnLeft();

@@ -14,7 +14,7 @@ public abstract class Strategy {
     abstract Coordinate setGoal(HashMap<Coordinate, String> map,
                                 HashMap<Coordinate, MapTile> view,
                                 Pose pose,
-                                boolean enoughParcels);
+                                boolean enoughParcels, int health);
 
 
     /**

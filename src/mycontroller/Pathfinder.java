@@ -16,8 +16,8 @@ public class Pathfinder {
 	final static int[] MaxPixel = {(World.MAP_WIDTH/World.MAP_PIXEL_SIZE), (World.MAP_HEIGHT/World.MAP_PIXEL_SIZE)};
 	double maxDistance = calculateDistance(Origin,MaxPixel);
 	
-	public Coordinate A_Star(Coordinate startingPosition, Coordinate finishingPosition, HashMap<Coordinate, String> hmap, int health){
-		LinkedList<Coordinate> path = new LinkedList<>();
+	public LinkedList<Node> A_Star(Coordinate startingPosition, Coordinate finishingPosition, HashMap<Coordinate, String> hmap, int health){
+		LinkedList<Node> path = new LinkedList<>();
 		ArrayList<Node> openList = new ArrayList<>();
 		ArrayList<Node> closedList = new ArrayList<>();
 		//System.out.println("Making New Node Map");
@@ -57,7 +57,7 @@ public class Pathfinder {
 			if(currentNode.getPos().equals(finishingPosition)) {
 				//System.out.println(currentNode.getParent());
 				while(currentNode.getParent() != null) {
-					path.offerFirst(currentNode.getPos());
+					path.offerFirst(currentNode);
 					//System.out.println(path.toString());
 					//System.out.println("Entered Loop");
 					currentNode = currentNode.getParent();
@@ -66,7 +66,7 @@ public class Pathfinder {
 				if(path.isEmpty()) {
 					return null;
 				}else {
-					return path.getFirst();
+					return path;
 				}
 			}
 			//System.out.println((getPossibleMoves(currentNode.getPos(), nodeMap)).toString());
