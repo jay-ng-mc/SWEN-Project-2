@@ -17,22 +17,21 @@ import world.WorldSpatial.*;
 
 public class MyAutoController extends CarController{		
 		
-		private boolean isFollowingWall = false; // This is set to true when the car starts sticking to a wall.
+		
 		
 		// Car Speed to move at
 		private final int CAR_MAX_SPEED = 1;
-
 		private HashMap<Coordinate, String> map = new HashMap<Coordinate, String>();
-		private int parcelsNeeded;
-		private int parcelsGotten;
 		private Pathfinder pathfind = new Pathfinder();
 		private HealthStrategy strat = new HealthStrategy();
-		private boolean firstCall = true;
 		
 		
 		
 		public MyAutoController(Car car) {
 			super(car);
+			
+			//initialise the map with known info, set "Roads" to unknown
+			
 			for (Coordinate coord : getMap().keySet()) {
 				if (getMap().get(coord).getType().toString().equals("WALL")) {
 					map.put(coord, "WALL");
@@ -63,6 +62,7 @@ public class MyAutoController extends CarController{
 			if(getSpeed() < CAR_MAX_SPEED){ // Need speed to turn and progress toward the exit
 				Direction dir = getOrientation();
 				Coordinate currentPosition = new Coordinate(getPosition());
+				//Reverse away from walls
 				if(facingWall()) {
 					applyReverseAcceleration();
 				}
@@ -70,9 +70,7 @@ public class MyAutoController extends CarController{
 					applyForwardAcceleration();
 				}
 				
-				// Tough luck if there's a wall in the way
 			}else {
-				//Need to implement finishingPosition
 				boolean enoughParcels = false;
 				if (numParcelsFound() >= numParcels()) {
 					enoughParcels = true;
@@ -80,6 +78,7 @@ public class MyAutoController extends CarController{
 	            for (Coordinate coords : map.keySet()) {
 	            	//System.out.println(coords.toString());
 	            }
+	            //get the goal coordinates
 				Coordinate finishingPosition = strat.setGoal(map, getView(), pose, enoughParcels);
 				System.out.println("Want to go to: " + finishingPosition.toString());
 				Coordinate move = pathfind.A_Star(new Coordinate(getPosition()), finishingPosition, map, (int)getHealth());

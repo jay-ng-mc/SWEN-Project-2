@@ -7,9 +7,8 @@ import utilities.Coordinate;
 import java.util.*;
 
 public class HealthStrategy extends Strategy{
-	/*public HealthStrategy(Hashmap<Coordinate, String> map) {
-		this.map = map;
-	}*/
+	
+	//Finds next move by calling upon the goal and the pathfinder
 	
     public Coordinate nextMove(HashMap<Coordinate, String> map,
                               HashMap<Coordinate, MapTile> view,
@@ -35,14 +34,18 @@ public class HealthStrategy extends Strategy{
         // failed to find path at all! car will die
         return null;
     }
+    
+    //Sets the goal in order of FINISH (if enough parcels) -> Parcel -> Most unknowns (without dying)
 
     public Coordinate setGoal(HashMap<Coordinate, String> map,
                               HashMap<Coordinate, MapTile> view,
                               Pose pose,
                               boolean enoughParcels){
-        //WORK IN PROGRESS
-        Coordinate[] goal = new Coordinate[1];  // wrapping goal in array to make lambda function work
+        Coordinate[] goal = new Coordinate[1];  
         for (Coordinate coordinate : view.keySet()) {
+        	
+        	//check if we should route to the exit
+        	
         	if (enoughParcels) {
         		for (Coordinate coord : map.keySet()) {
         			if (map.get(coord).equalsIgnoreCase("finish")){
@@ -51,11 +54,8 @@ public class HealthStrategy extends Strategy{
         			}
         		}
         	}
-            if (enoughParcels &&  view.get(coordinate).getType() == MapTile.Type.FINISH){
-                // if we have enough parcels, set exit as goal
-                goal[0]= coordinate;
-                return goal[0];
-            }
+        	
+        	//check for a parcel if we can safely obtain it
             else if (view.get(coordinate).getType() == MapTile.Type.TRAP){
                 // if we see a parcel, set it as goal
                 TrapTile trapTile = (TrapTile) view.get(coordinate);
@@ -106,7 +106,7 @@ public class HealthStrategy extends Strategy{
             //System.out.println("North: " + northUnknowns + " East: " + eastUnknowns + " South: " + southUnknowns + " West: " + westUnknowns);
 
             boolean tied = false;
-            // this if tree decides which direction to go towards, then sets the tile 5 units in that direction as goal
+            // this if tree decides which direction to go towards, then sets the closest tile in that direction as the goal
             if(northUnknowns > southUnknowns){
                 if (eastUnknowns > westUnknowns){
                     if (northUnknowns > eastUnknowns){
@@ -173,10 +173,11 @@ public class HealthStrategy extends Strategy{
         return goal[0];
     }
 
-
+    //Get closest unexplored tile's coordinates
+    
     private Coordinate getNearestUnknown(HashMap<Coordinate, String> map, Pose pose){
     	Coordinate nearest = null;
-    	int closestdist = 9999999;
+    	int closestdist = 9999999; //arbitrary large integer
     	for (Coordinate coord : map.keySet()) {
     		int distanceTo = Math.abs(coord.x-pose.position.x) + Math.abs(coord.y-pose.position.y);
     		if (map.get(coord).equalsIgnoreCase("UNKNOWN") && distanceTo < closestdist && 
