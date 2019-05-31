@@ -7,13 +7,13 @@ import utilities.Coordinate;
 import java.util.HashMap;
 
 public abstract class Strategy {
-    abstract Path.Move nextMove(HashMap<Coordinate, String> map,
+    abstract Coordinate nextMove(HashMap<Coordinate, String> map,
                                 HashMap<Coordinate, MapTile> view,
-                                Pose pose,
-                                boolean enoughParcels);
+                                Coordinate position,
+                                boolean enoughParcels, int health);
     abstract Coordinate setGoal(HashMap<Coordinate, String> map,
                                 HashMap<Coordinate, MapTile> view,
-                                Pose pose,
+                                Coordinate position,
                                 boolean enoughParcels);
 
 
@@ -43,14 +43,17 @@ public abstract class Strategy {
                             map.put(coordinate, "road");
                             break;
                         case WALL:
-                            map.put(coordinate, "map");
+                            map.put(coordinate, "wall");
                             break;
                         case EMPTY:
-                            // not in map, don't add
-                            // map.put(coordinate, "empty");
                             break;
                         case UTILITY:
                             map.put(coordinate, "utility");
+                            break;
+                        case TRAP:
+                        	break;
+                        default:
+                        	break;
                     }
 
 

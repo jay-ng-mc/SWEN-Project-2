@@ -16,13 +16,11 @@ public class Pathfinder {
 	final static int[] MaxPixel = {(World.MAP_WIDTH/World.MAP_PIXEL_SIZE), (World.MAP_HEIGHT/World.MAP_PIXEL_SIZE)};
 	double maxDistance = calculateDistance(Origin,MaxPixel);
 	
-	public LinkedList<Coordinate> A_Star(Coordinate startingPosition, Coordinate finishingPosition, HashMap<Coordinate, String> hmap){
+	public Coordinate A_Star(Coordinate startingPosition, Coordinate finishingPosition, HashMap<Coordinate, String> hmap, int health){
 		LinkedList<Coordinate> path = new LinkedList<>();
 		ArrayList<Node> openList = new ArrayList<>();
 		ArrayList<Node> closedList = new ArrayList<>();
-		
 		HashMap<Coordinate, Node> nodeMap = createNodeMap(hmap);
-		
 		
 		Node currentNode;
 		int currentIndex;
@@ -30,11 +28,13 @@ public class Pathfinder {
 		openList.add(nodeMap.get(startingPosition));
 		currentNode = openList.get(0);
 		currentNode.setValue(calculateHeuristic(currentNode.getPos(), finishingPosition, nodeMap));
-		
+		currentNode.setHP(health);
+		if (finishingPosition == null) {
+			return null;
+		}
 		while(!openList.isEmpty()) {
 			currentNode =  openList.get(0);
 			currentIndex = 0;
-			
 			int index = 0;
 			for(Node node : openList) {
 				if(node.getValue() < currentNode.getValue()) {
@@ -47,33 +47,32 @@ public class Pathfinder {
 			openList.remove(currentIndex);
 			closedList.add(currentNode);
 			
-			if(currentNode.getPos() == finishingPosition) {
+			if(currentNode.getPos().equals(finishingPosition)) {
 				while(currentNode.getParent() != null) {
 					path.offerFirst(currentNode.getPos());
 					currentNode = currentNode.getParent();
 				}
-				path.offerFirst(currentNode.getPos());
-				return path;
+				if(path.isEmpty()) {
+					return null;
+				}else {
+					System.out.println(path);
+					return path.getFirst();
+				}
 			}
-			
 			if(getPossibleMoves(currentNode.getPos(), nodeMap).size() > 0) {
 				for(Node movable: getPossibleMoves(currentNode.getPos(), nodeMap)) {
+					if(closedList.contains(movable)) {
+						continue;
+					}
+					
+					if(movable.getParent() == null) {
+						movable.setParent(currentNode);
+						movable.setValue(calculateHeuristic(movable.getPos(), finishingPosition, nodeMap));
+					}
+					if(openList.contains(movable)) {
+						continue;
+					}
 					if(movable.getHP() > 0) {
-						if(closedList.contains(movable)) {
-							continue;
-						}
-					
-						if(movable.getParent() != null) {
-							movable.setParent(currentNode);
-							movable.setValue(calculateHeuristic(movable.getPos(), finishingPosition, nodeMap));
-						}
-					
-						for(Node node : openList) {
-							if(node.getValue() < currentNode.getValue()) {
-								continue;
-							}
-						}
-					
 						openList.add(movable);
 					}else {
 						closedList.add(movable);
@@ -81,7 +80,7 @@ public class Pathfinder {
 				}
 			}
 		}
-		return path;
+		return null;
 	}
 
 	private ArrayList<Node> getPossibleMoves(Coordinate pos, HashMap<Coordinate, Node> map) {
@@ -111,7 +110,7 @@ public class Pathfinder {
 	private HashMap<Coordinate, Node> createNodeMap(HashMap<Coordinate, String> hmap) {
 		HashMap<Coordinate, Node> nodeMap = new HashMap<>();
 		for(HashMap.Entry<Coordinate, String> entry: hmap.entrySet()) {
-			if(entry.getValue() != "WALL" || entry.getValue() != "UNKOWN") {
+			if(!(entry.getValue().equalsIgnoreCase("WALL"))) {
 				nodeMap.put(entry.getKey(), new Node(entry.getKey(), tileFactory.getTrapTile(entry.getValue())));
 			}
 		}
@@ -127,11 +126,12 @@ public class Pathfinder {
 	private int calculateTileValue(Coordinate coordinate, HashMap<Coordinate, Node> hmap) {
 		int tileValue = 0;
 		if(hmap.get(coordinate).getTrapTile() instanceof WaterTrap) {
-			tileValue += 2*maxDistance*5;
+			tileValue += (2*maxDistance*5 + hmap.get(coordinate).getHP());
 		}else if(hmap.get(coordinate).getTrapTile() instanceof LavaTrap) {
-			tileValue += maxDistance;
+			System.out.println(hmap.get(coordinate).getPos() + " IS LAVA");
+			tileValue += (maxDistance + hmap.get(coordinate).getHP());
 		}else if (hmap.get(coordinate).getTrapTile() instanceof HealthTrap) {
-			tileValue += 2*maxDistance;
+			tileValue += (2*maxDistance + hmap.get(coordinate).getHP());
 		}
 		return tileValue;
 	}
